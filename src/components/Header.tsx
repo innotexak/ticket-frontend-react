@@ -1,7 +1,18 @@
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export const Header: React.FC = () => {
+  const pathname = usePathname();
+
+  const isActive = (path: string) =>
+    pathname === path || pathname.startsWith(`${path}/`);
+
+  const linkClass = (path: string) =>
+    isActive(path)
+      ? 'text-blue-600 font-semibold border-b-2 border-blue-600 pb-1'
+      : 'text-gray-600 hover:text-blue-600 transition-colors font-medium';
+  
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,25 +29,25 @@ export const Header: React.FC = () => {
             <nav className="hidden md:flex gap-8">
               <Link
                 href="/dashboard"
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+               className={linkClass('/dashboard')}
               >
                 Dashboard
               </Link>
               <Link
                 href="/categories"
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+               className={linkClass('/categories')}
               >
                 Categories
               </Link>
               <Link
                 href="/events"
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                className={linkClass('/events')}
               >
                 Events
               </Link>
               <Link
                 href="/orders"
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                className={linkClass('/orders')}
               >
                 Orders
               </Link>
