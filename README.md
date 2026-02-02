@@ -1,37 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ticket Frontend 🎟️
 
-## Getting Started
+**Ticket Frontend** is a Next.js + TypeScript frontend for managing events, categories and orders. It provides a lightweight UI and API client used to interact with a backend ticketing API.
 
-First, run the development server:
+---
 
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js (18+ recommended)
+- npm, pnpm, or yarn
+
+### Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment
+Create a `.env.local` file at the project root and set the API base URL used by the app:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=https://your-api.example.com
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> The frontend app constructs API requests using `NEXT_PUBLIC_API_URL + '/api'` (see `src/lib/api.ts`).
 
-## Learn More
+### Run (development)
+```bash
+npm run dev
+# then open http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Build & Start (production)
+```bash
+npm run build
+npm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Lint
+```bash
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## ✨ Features
+- Browse and manage Events, Categories, and Orders
+- Simple UI components (`Card`, `Form`, `Modal`, `Alert`, `Header`, `Button`)
+- Reusable API client and typed service layer (`src/lib/api.ts`, `src/lib/services.ts`)
+- Tailwind CSS for styling
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# ticket-frontend-react
+## 🧭 Project Structure (high level)
+
+- `src/app/` - Next.js app routes and pages (categories, events, orders, dashboard)
+- `src/components/` - Reusable UI components
+- `src/lib/` - API client and service helpers
+- `public/` - Static assets
+
+---
+
+## 🔧 Development Notes & Tips
+- API helper: `apiClient` (in `src/lib/api.ts`) handles requests and JSON parsing.
+- Services: `categoryApi`, `eventApi`, and `orderApi` are typed helpers for endpoints (see `src/lib/services.ts`).
+- Ensure `NEXT_PUBLIC_API_URL` points to a running backend that exposes the routes used by the services.
+
+---
+
+## 🧪 Tests
+No tests are included by default. Consider adding unit tests with Jest/React Testing Library and E2E tests with Playwright.
+
+---
+
+## 🤝 Contributing
+- Fork the repo, create a feature branch, and open a pull request with a clear description.
+- Keep changes small and focused. Add tests where applicable.
+
+---
+
+## 📄 License
+This project does not include a license file. Add one (e.g., `MIT`) if you intend to make it public.
+
+---
+
+Happy hacking! ⚡
+
