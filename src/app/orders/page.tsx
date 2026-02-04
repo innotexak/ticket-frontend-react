@@ -7,7 +7,7 @@ import { Card, CardBody, CardFooter, CardHeader } from '@/components/Card';
 import { Input, Select } from '@/components/Form';
 import { Modal } from '@/components/Modal';
 import { Alert } from '@/components/Alert';
-import { Order, orderApi } from '@/lib/services';
+import { Order, orderApi, PaginatedResponse } from '@/lib/services';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -20,6 +20,7 @@ export default function OrdersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    orderId: '',
     userId: '',
     orderTotal: 0,
     orderPlaced: '',
@@ -30,7 +31,7 @@ export default function OrdersPage() {
     try {
       setIsLoading(true);
       const data = await orderApi.getAll();
-      setOrders(data || []);
+      setOrders(data.items || []);
     } catch (err: any) {
       setError(err.message || 'Failed to load orders');
     } finally {
@@ -46,6 +47,7 @@ export default function OrdersPage() {
     setEditingId(null);
     setFormData({
       userId: '',
+      orderId: '',
       orderTotal: 0,
       orderPlaced: new Date().toISOString().slice(0, 16),
       orderPaid: false,
@@ -56,6 +58,7 @@ export default function OrdersPage() {
   const openEdit = (o: Order) => {
     setEditingId(o.id);
     setFormData({
+      orderId: o.id,
       userId: o.userId,
       orderTotal: o.orderTotal,
       orderPlaced: new Date(o.orderPlaced).toISOString().slice(0, 16),
@@ -90,7 +93,7 @@ export default function OrdersPage() {
       } as any;
 
       if (editingId) {
-        await orderApi.update(editingId, payload);
+        await orderApi.update(editingId, {...payload, orderId : editingId});
         setSuccess('Order updated successfully');
       } else {
         await orderApi.create(payload);
@@ -363,6 +366,7 @@ export default function OrdersPage() {
             <button
               type="submit"
               disabled={isLoading}
+             
               className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:shadow-lg transition disabled:opacity-50"
             >
               {editingId ? 'Update Order' : 'Create Order'}

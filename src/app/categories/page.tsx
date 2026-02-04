@@ -17,13 +17,14 @@ export default function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [formData, setFormData] = useState({ name: '' });
+  const [formData, setFormData] = useState({ name: '', categoryId: '' });
+
 
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
       const data = await categoryApi.getAll();
-      setCategories(data);
+      setCategories(data.items || []);
       setError('');
     } catch (err: any) {
       setError(err.message || 'Failed to load categories');
@@ -48,14 +49,14 @@ export default function CategoriesPage() {
       setIsLoading(true);
 
       if (editingId) {
-        await categoryApi.update(editingId, { name: formData.name } as any);
+        await categoryApi.update(editingId, { name: formData.name, categoryId: formData.categoryId } as any);
         setSuccess('Category updated successfully');
       } else {
         await categoryApi.create({ name: formData.name } as any);
         setSuccess('Category created successfully');
       }
 
-      setFormData({ name: '' });
+      setFormData({ name: '', categoryId: '' });
       setEditingId(null);
       setIsModalOpen(false);
       await fetchCategories();
@@ -83,14 +84,15 @@ export default function CategoriesPage() {
 
   const handleEdit = (category: Category) => {
     setEditingId(category.categoryId);
-    setFormData({ name: category.name });
+
+    setFormData({ name: category.name, categoryId: category.categoryId });
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditingId(null);
-    setFormData({ name: '' });
+    setFormData({ name: '' , categoryId: '' });
   };
 
   const filteredCategories = categories.filter((cat) =>
@@ -254,7 +256,7 @@ export default function CategoriesPage() {
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ name: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Enter category name"
               required
               className="w-full text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"

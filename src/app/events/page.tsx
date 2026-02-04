@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
-import { Button } from '@/components/Button';
-import { Card, CardBody, CardFooter, CardHeader } from '@/components/Card';
-import { Input, TextArea, Select } from '@/components/Form';
 import { Modal } from '@/components/Modal';
 import { Alert } from '@/components/Alert';
 import { Event as EventType, categoryApi, eventApi } from '@/lib/services';
@@ -48,7 +45,7 @@ export default function EventsPage() {
   const fetchCategories = async () => {
     try {
       const data = await categoryApi.getAll();
-      setCategories(data || []);
+      setCategories(data.items || []);
     } catch (err) {
       // ignore silently
     }
@@ -72,6 +69,35 @@ export default function EventsPage() {
     });
     setIsModalOpen(true);
   };
+
+
+const handleDownload = async () => {
+  try {
+    // Call the API and get the EventExportFileVm
+    const file = await eventApi.export();
+
+    // Convert CSV data to a Blob
+    const blob = new Blob([file.data], { type: file.contentType });
+
+    // Create a temporary link element
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.eventExportFileName; // use server-generated name
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    link.parentNode?.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Download failed:', error);
+    alert('Failed to download events CSV.');
+  }
+};
+
 
   const openEdit = (ev: EventType) => {
     setEditingId(ev.eventId);
@@ -161,7 +187,8 @@ export default function EventsPage() {
               <h1 className="text-4xl font-bold text-slate-900 mb-2">Events</h1>
               <p className="text-lg text-slate-600">Discover and manage all your upcoming events</p>
             </div>
-            <button
+          <div className='flex justify-center items-center gap-2'>
+              <button
               onClick={openCreate}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 transform hover:scale-105"
             >
@@ -170,6 +197,21 @@ export default function EventsPage() {
               </svg>
               Add Event
             </button>
+              <button
+              onClick={handleDownload}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 transform hover:scale-105"
+            >
+           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+            />
+          </svg>
+           Download
+            </button>
+          </div>
           </div>
         </div>
 
