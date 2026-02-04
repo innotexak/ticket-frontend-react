@@ -1,44 +1,132 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Modal } from '@/components/Modal';
 import { Alert } from '@/components/Alert';
-import { Category, categoryApi } from '@/lib/services';
+import { Category, categoryApi, PaginatedResponse } from '@/lib/services';
 import { 
   FiPlus, 
   FiEdit2, 
   FiTrash2, 
   FiSearch, 
-  FiTag
+  FiTag,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX
 } from 'react-icons/fi';
 
+const PAGE_SIZE = 10;
+const DEBOUNCE_DELAY = 300; // milliseconds
+
 export default function CategoriesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ name: '', categoryId: '' });
 
-  const fetchCategories = async () => {
+  // Get from URL params or defaults
+  const searchQuery = searchParams.get('q') || '';
+  const pageParam = searchParams.get('page');
+  const currentPage = pageParam ? Math.max(0, parseInt(pageParam, 10) - 1) : 0;
+
+  // Local state for input (not synced to URL)
+  const [inputValue, setInputValue] = useState(searchQuery);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Pagination state
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
+
+  const updateUrl = (query: string = '', page: number = 0) => {
+    const params = new URLSearchParams();
+    if (query) params.append('q', query);
+    if (page > 0) params.append('page', (page + 1).toString());
+
+    const queryString = params.toString();
+    router.push(`/categories${queryString ? `?${queryString}` : ''}`);
+  };
+
+  const fetchCategories = async (page: number = 0, search: string = '') => {
     try {
       setIsLoading(true);
-      const data = await categoryApi.getAll();
-      setCategories(data.items || []);
+      const offset = page * PAGE_SIZE;
+
+      const data = await categoryApi.getAll({
+        limit: PAGE_SIZE,
+        offset,
+        search: search || undefined,
+      });
+
+      // Handle both paginated and non-paginated responses
+      if ('items' in data) {
+        setCategories(data.items || []);
+        setTotalCount(data.totalCount);
+        setHasNext(data.hasNext);
+        setHasPrevious(data.hasPrevious);
+      } else if (Array.isArray(data)) {
+        setCategories(data || []);
+        setTotalCount(data.length);
+        setHasNext(false);
+        setHasPrevious(false);
+      }
+
       setError('');
     } catch (err: any) {
       setError(err.message || 'Failed to load categories');
+      setCategories([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Fetch when URL params change
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories(currentPage, searchQuery);
+  }, [currentPage, searchQuery]);
+
+  // Sync input value with URL search param on mount
+  useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+
+    // Clear existing timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    if (newValue.length > 0 && newValue.length < 3) {
+      return;
+    }
+    // Set new timer
+    debounceTimer.current = setTimeout(() => {
+      updateUrl(newValue, 0); // Reset to page 1 on search
+    }, DEBOUNCE_DELAY);
+  };
+
+  const handleClearSearch = () => {
+    setInputValue('');
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    updateUrl('', 0);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    updateUrl(inputValue, newPage);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +150,8 @@ export default function CategoriesPage() {
       setFormData({ name: '', categoryId: '' });
       setEditingId(null);
       setIsModalOpen(false);
-      await fetchCategories();
+      updateUrl(inputValue, 0);
+      await fetchCategories(0, inputValue);
     } catch (err: any) {
       setError(err.message || 'Operation failed');
     } finally {
@@ -77,7 +166,8 @@ export default function CategoriesPage() {
       setIsLoading(true);
       await categoryApi.delete(id);
       setSuccess('Category deleted successfully');
-      await fetchCategories();
+      updateUrl(inputValue, 0);
+      await fetchCategories(0, inputValue);
     } catch (err: any) {
       setError(err.message || 'Failed to delete category');
     } finally {
@@ -97,10 +187,6 @@ export default function CategoriesPage() {
     setFormData({ name: '', categoryId: '' });
   };
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const categoryColors = [
     { bg: 'bg-blue-600', icon: 'bg-blue-600', light: 'bg-blue-900/20 border-blue-700 text-blue-400' },
     { bg: 'bg-purple-600', icon: 'bg-purple-600', light: 'bg-purple-900/20 border-purple-700 text-purple-400' },
@@ -111,6 +197,10 @@ export default function CategoriesPage() {
   ];
 
   const getColorClass = (index: number) => categoryColors[index % categoryColors.length];
+
+  const pageStart = currentPage * PAGE_SIZE + 1;
+  const pageEnd = Math.min((currentPage + 1) * PAGE_SIZE, totalCount);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -141,18 +231,40 @@ export default function CategoriesPage() {
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} />}
 
         {/* Search Bar */}
-        {categories.length > 0 && (
-          <div className="mb-8">
-            <div className="relative">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search categories by name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              />
+        <div className="mb-8">
+          <div className="relative">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search categories by name..."
+              value={inputValue}
+              onChange={handleSearchInputChange}
+              className="w-full pl-12 pr-12 py-3 bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+            {inputValue && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition p-1 hover:bg-slate-700 rounded"
+                title="Clear search"
+              >
+                <FiX className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {inputValue && (
+            <div className="mt-2 text-xs text-slate-400">
+              Searching for: <span className="text-blue-400 font-semibold">"{inputValue}"</span>
             </div>
+          )}
+        </div>
+
+        {/* Stats */}
+        {totalCount > 0 && (
+          <div className="mb-6 text-sm text-slate-400">
+            Showing <span className="font-semibold text-slate-200">{pageStart}</span>
+            {' '}to <span className="font-semibold text-slate-200">{pageEnd}</span> of{' '}
+            <span className="font-semibold text-slate-200">{totalCount}</span> categories
+            {inputValue && <span className="ml-2">· URL: /categories?q={inputValue}{currentPage > 0 ? `&page=${currentPage + 1}` : ''}</span>}
           </div>
         )}
 
@@ -164,16 +276,16 @@ export default function CategoriesPage() {
               <p className="text-slate-400 font-medium">Loading categories...</p>
             </div>
           </div>
-        ) : filteredCategories.length === 0 ? (
+        ) : categories.length === 0 ? (
           <div className="bg-slate-800 rounded-xl border border-slate-700 p-12 text-center">
             <div className="text-6xl mb-4">🏷️</div>
             <h3 className="text-2xl font-bold text-white mb-2">No categories found</h3>
             <p className="text-slate-400 mb-8 text-lg">
-              {categories.length === 0
+              {totalCount === 0 && inputValue === ''
                 ? 'Get started by creating your first category.'
                 : 'Try adjusting your search.'}
             </p>
-            {categories.length === 0 && (
+            {totalCount === 0 && inputValue === '' && (
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition transform hover:scale-105"
@@ -185,7 +297,7 @@ export default function CategoriesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredCategories.map((category, index) => {
+            {categories.map((category, index) => {
               const colors = getColorClass(index);
               return (
                 <div
@@ -253,6 +365,36 @@ export default function CategoriesPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalCount > PAGE_SIZE && (
+          <div className="flex items-center justify-center gap-4 mt-12">
+            <button
+              onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
+              disabled={!hasPrevious || isLoading}
+              className="flex items-center gap-2 px-4 py-2.5 border border-slate-600 text-slate-300 font-medium rounded-lg hover:bg-slate-700/50 hover:border-slate-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FiChevronLeft className="w-4 h-4" />
+              Previous
+            </button>
+
+            <div className="flex items-center gap-2 text-slate-400">
+              <span>Page</span>
+              <span className="font-semibold text-slate-200">{currentPage + 1}</span>
+              <span>of</span>
+              <span className="font-semibold text-slate-200">{totalPages || 1}</span>
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!hasNext || isLoading}
+              className="flex items-center gap-2 px-4 py-2.5 border border-slate-600 text-slate-300 font-medium rounded-lg hover:bg-slate-700/50 hover:border-slate-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+              <FiChevronRight className="w-4 h-4" />
+            </button>
           </div>
         )}
       </main>

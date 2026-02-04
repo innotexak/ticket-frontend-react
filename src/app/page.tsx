@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { categoryApi, eventApi, orderApi, Category, Event as EventType, Order } from '@/lib/services';
 import { useTheme } from '@/contexts/ThemeContext';
-// import { FiCalendar, FiTag, FiBarChart2, FiTrendingUp, FiClock, FiMapPin } from 'react-icons/fi';
+
 
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
