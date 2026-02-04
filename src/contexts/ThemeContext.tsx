@@ -9,59 +9,78 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
   resolvedTheme: 'light' | 'dark';
   toggleTheme: () => void;
+  isLoaded: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const getSystemTheme = (): 'light' | 'dark' => {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+const applyThemeToDocument = (resolved: 'light' | 'dark') => {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  root.classList.add(resolved);
+};
+
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>('system');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize theme from localStorage
+  // Initialize theme from localStorage on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme') as Theme;
-      if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-        setThemeState(savedTheme);
-      }
-    }
-  }, []);
+    const initializeTheme = () => {
+      let savedTheme: Theme = 'system';
 
-  // Apply theme to document
-  useEffect(() => {
-    const applyTheme = () => {
-      let resolved: 'light' | 'dark';
-      
-      if (theme === 'system') {
-        resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      } else {
-        resolved = theme;
-      }
-      
-      setResolvedTheme(resolved);
-      
-      // Apply theme to document
+      // Get saved theme from localStorage
       if (typeof window !== 'undefined') {
-        const root = document.documentElement;
-        root.classList.remove('light', 'dark');
-        root.classList.add(resolved);
+        const stored = localStorage.getItem('theme');
+        if (stored && ['light', 'dark', 'system'].includes(stored)) {
+          savedTheme = stored as Theme;
+        }
       }
+
+      setThemeState(savedTheme);
+
+      // Resolve and apply theme
+      const resolved = savedTheme === 'system' ? getSystemTheme() : savedTheme;
+      setResolvedTheme(resolved);
+      applyThemeToDocument(resolved);
+      setIsLoaded(true);
     };
 
-    applyTheme();
+    initializeTheme();
+  }, []);
 
-    // Listen for system theme changes when using 'system' theme
-    if (theme === 'system' && typeof window !== 'undefined') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => applyTheme();
-      
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
+  // Listen for system theme changes
+  useEffect(() => {
+    if (theme !== 'system' || typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      const newResolved = e.matches ? 'dark' : 'light';
+      setResolvedTheme(newResolved);
+      applyThemeToDocument(newResolved);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
+
+    // Resolve theme
+    const resolved = newTheme === 'system' ? getSystemTheme() : newTheme;
+    setResolvedTheme(resolved);
+    applyThemeToDocument(resolved);
+
+    // Save to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('theme', newTheme);
     }
@@ -82,9 +101,14 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setTheme,
     resolvedTheme,
     toggleTheme,
+    isLoaded,
   };
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };
 
 export const useTheme = () => {

@@ -2,12 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
-import { Button } from '@/components/Button';
-import { Card, CardBody, CardFooter, CardHeader } from '@/components/Card';
-import { Input, Select } from '@/components/Form';
 import { Modal } from '@/components/Modal';
 import { Alert } from '@/components/Alert';
 import { Order, orderApi, PaginatedResponse } from '@/lib/services';
+import {
+  FiPlus,
+  FiSearch,
+  FiFilter,
+  FiEdit2,
+  FiTrash2,
+  FiCheckCircle,
+  FiClock,
+  FiDollarSign,
+  FiUser,
+  FiCalendar,
+} from 'react-icons/fi';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -93,7 +102,7 @@ export default function OrdersPage() {
       } as any;
 
       if (editingId) {
-        await orderApi.update(editingId, {...payload, orderId : editingId});
+        await orderApi.update(editingId, { ...payload, orderId: editingId });
         setSuccess('Order updated successfully');
       } else {
         await orderApi.create(payload);
@@ -110,61 +119,91 @@ export default function OrdersPage() {
   };
 
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch = 
+    const matchesSearch =
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.userId.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesFilter =
       filterPaid === 'all' ||
       (filterPaid === 'paid' && order.orderPaid) ||
       (filterPaid === 'unpaid' && !order.orderPaid);
-    
+
     return matchesSearch && matchesFilter;
   });
 
   const totalRevenue = orders.reduce((sum, order) => sum + order.orderTotal, 0);
   const paidOrders = orders.filter((o) => o.orderPaid).length;
+  const pendingOrders = orders.length - paidOrders;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-slate-900">
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
         <div className="mb-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Orders</h1>
-              <p className="text-lg text-slate-600">Manage and track all customer orders</p>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            <div className="space-y-2">
+              <h1 className="text-5xl font-bold text-white">Orders</h1>
+              <p className="text-lg text-slate-400">Manage and track all customer orders</p>
             </div>
             <button
               onClick={openCreate}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 transform hover:scale-105"
+              className="group relative flex items-center justify-center gap-2 px-6 py-3 font-semibold text-white rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 self-start lg:self-auto bg-blue-600 hover:bg-blue-700"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Order
+              <FiPlus className="w-5 h-5" />
+              <span>Add Order</span>
             </button>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-              <div className="text-sm font-medium text-slate-600 mb-2">Total Orders</div>
-              <div className="text-3xl font-bold text-slate-900">{orders.length}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+            {/* Total Orders */}
+            <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Total Orders</span>
+                <div className="p-2 bg-blue-900/30 rounded-lg">
+                  <FiDollarSign className="w-5 h-5 text-blue-400" />
+                </div>
+              </div>
+              <div className="text-4xl font-bold text-white">{orders.length}</div>
+              <p className="text-xs text-slate-500 mt-2">All time</p>
             </div>
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-              <div className="text-sm font-medium text-slate-600 mb-2">Total Revenue</div>
-              <div className="text-3xl font-bold text-blue-600">${totalRevenue.toFixed(2)}</div>
+
+            {/* Total Revenue */}
+            <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Total Revenue</span>
+                <div className="p-2 bg-green-900/30 rounded-lg">
+                  <FiDollarSign className="w-5 h-5 text-green-400" />
+                </div>
+              </div>
+              <div className="text-4xl font-bold text-white">${totalRevenue.toFixed(2)}</div>
+              <p className="text-xs text-slate-500 mt-2">Generated revenue</p>
             </div>
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-              <div className="text-sm font-medium text-slate-600 mb-2">Paid Orders</div>
-              <div className="text-3xl font-bold text-green-600">{paidOrders}</div>
+
+            {/* Paid Orders */}
+            <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Paid Orders</span>
+                <div className="p-2 bg-emerald-900/30 rounded-lg">
+                  <FiCheckCircle className="w-5 h-5 text-emerald-400" />
+                </div>
+              </div>
+              <div className="text-4xl font-bold text-white">{paidOrders}</div>
+              <p className="text-xs text-slate-500 mt-2">Completed payments</p>
             </div>
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-              <div className="text-sm font-medium text-slate-600 mb-2">Pending</div>
-              <div className="text-3xl font-bold text-orange-600">{orders.length - paidOrders}</div>
+
+            {/* Pending Orders */}
+            <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Pending</span>
+                <div className="p-2 bg-amber-900/30 rounded-lg">
+                  <FiClock className="w-5 h-5 text-amber-400" />
+                </div>
+              </div>
+              <div className="text-4xl font-bold text-white">{pendingOrders}</div>
+              <p className="text-xs text-slate-500 mt-2">Awaiting payment</p>
             </div>
           </div>
         </div>
@@ -174,37 +213,48 @@ export default function OrdersPage() {
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} />}
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-8 shadow-sm">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Search Orders</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+                <FiSearch className="w-4 h-4" />
+                Search Orders
+              </label>
               <input
                 type="text"
                 placeholder="Search by order ID or user..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
+
+            {/* Filter */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Filter by Status</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+                <FiFilter className="w-4 h-4" />
+                Filter by Status
+              </label>
               <select
                 value={filterPaid}
                 onChange={(e) => setFilterPaid(e.target.value as any)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none cursor-pointer"
               >
                 <option value="all">All Orders</option>
                 <option value="paid">Paid</option>
                 <option value="unpaid">Unpaid</option>
               </select>
             </div>
+
+            {/* Clear Button */}
             <div className="flex items-end">
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setFilterPaid('all');
                 }}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition"
+                className="w-full px-4 py-2.5 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-700/50 hover:border-slate-500 transition"
               >
                 Clear Filters
               </button>
@@ -216,85 +266,127 @@ export default function OrdersPage() {
         {isLoading && !orders.length ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
-              <div className="w-12 h-12 rounded-full border-4 border-slate-300 border-t-blue-600 animate-spin mx-auto mb-4"></div>
-              <p className="text-slate-600">Loading orders...</p>
+              <div className="w-12 h-12 rounded-full border-4 border-slate-700 border-t-blue-500 animate-spin mx-auto mb-4"></div>
+              <p className="text-slate-400">Loading orders...</p>
             </div>
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
-            <div className="text-5xl mb-4">📭</div>
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">No orders found</h3>
-            <p className="text-slate-600 mb-6">
+          <div className="bg-slate-800 rounded-xl border border-slate-700 p-12 text-center">
+            <div className="text-6xl mb-4">📭</div>
+            <h3 className="text-2xl font-bold text-white mb-2">No orders found</h3>
+            <p className="text-slate-400 mb-8 text-lg">
               {orders.length === 0 ? 'Get started by creating your first order.' : 'Try adjusting your filters.'}
             </p>
             {orders.length === 0 && (
               <button
                 onClick={openCreate}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition transform hover:scale-105"
               >
+                <FiPlus className="w-5 h-5" />
                 Create First Order
               </button>
             )}
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredOrders.map((order) => (
+            {filteredOrders.map((order, idx) => (
               <div
                 key={order.id}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300"
+                className="bg-slate-800 rounded-xl border border-slate-700 p-6 hover:border-slate-600 hover:bg-slate-800/80 transition-all duration-300"
+                style={{
+                  animation: `slideIn 0.3s ease-out ${idx * 50}ms backwards`,
+                }}
               >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <style>{`
+                  @keyframes slideIn {
+                    from {
+                      opacity: 0;
+                      transform: translateY(20px);
+                    }
+                    to {
+                      opacity: 1;
+                      transform: translateY(0);
+                    }
+                  }
+                `}</style>
+
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  {/* Order Info */}
                   <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-                        {order.id.slice(0, 2).toUpperCase()}
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-lg bg-slate-700 flex items-center justify-center text-lg font-bold text-slate-300 border border-slate-600">
+                        #
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-slate-900">
-                          Order {order.id.slice(0, 8)}
-                        </h3>
-                        <p className="text-sm text-slate-600">User: {order.userId}</p>
+                        <h3 className="text-lg font-bold text-white">Order {order.id.slice(0, 8).toUpperCase()}</h3>
+                        <div className="flex items-center gap-1 text-slate-400 text-sm mt-1">
+                          <FiUser className="w-4 h-4" />
+                          <span>{order.userId}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-6 md:w-auto">
+                  {/* Order Details */}
+                  <div className="grid grid-cols-3 gap-6 lg:w-auto">
+                    {/* Amount */}
                     <div className="text-center">
-                      <p className="text-sm text-slate-600 mb-1">Amount</p>
-                      <p className="text-xl font-bold text-slate-900">${order.orderTotal.toFixed(2)}</p>
+                      <p className="text-xs text-slate-400 mb-2 uppercase font-semibold">Amount</p>
+                      <p className="text-2xl font-bold text-white">${order.orderTotal.toFixed(2)}</p>
                     </div>
+
+                    {/* Date */}
                     <div className="text-center">
-                      <p className="text-sm text-slate-600 mb-1">Date</p>
-                      <p className="text-sm font-medium text-slate-900">
-                        {new Date(order.orderPlaced).toLocaleDateString()}
+                      <p className="text-xs text-slate-400 mb-2 uppercase font-semibold">Date</p>
+                      <p className="text-sm font-medium text-slate-300">
+                        {new Date(order.orderPlaced).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
                       </p>
                     </div>
+
+                    {/* Status */}
                     <div className="text-center">
-                      <p className="text-sm text-slate-600 mb-1">Status</p>
+                      <p className="text-xs text-slate-400 mb-2 uppercase font-semibold">Status</p>
                       <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${
                           order.orderPaid
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-orange-100 text-orange-700'
+                            ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-700/50'
+                            : 'bg-amber-900/30 text-amber-400 border border-amber-700/50'
                         }`}
                       >
-                        {order.orderPaid ? '✓ Paid' : 'Pending'}
+                        {order.orderPaid ? (
+                          <>
+                            <FiCheckCircle className="w-4 h-4" />
+                            Paid
+                          </>
+                        ) : (
+                          <>
+                            <FiClock className="w-4 h-4" />
+                            Pending
+                          </>
+                        )}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:border-l md:pl-6 md:ml-6 border-slate-200">
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-4 lg:pt-0 border-t lg:border-t-0 lg:border-l border-slate-700 lg:pl-6 lg:ml-6">
                     <button
                       onClick={() => openEdit(order)}
-                      className="flex-1 md:flex-none px-4 py-2 bg-blue-50 text-blue-600 font-medium rounded-lg hover:bg-blue-100 transition"
+                      className="flex-1 lg:flex-none px-4 py-2.5 bg-blue-900/30 text-blue-400 border border-blue-700/50 font-semibold rounded-lg hover:bg-blue-900/50 hover:border-blue-600 transition flex items-center justify-center gap-2"
                     >
-                      Edit
+                      <FiEdit2 className="w-4 h-4" />
+                      <span className="hidden sm:inline">Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(order.id)}
-                      className="flex-1 md:flex-none px-4 py-2 bg-red-50 text-red-600 font-medium rounded-lg hover:bg-red-100 transition"
+                      className="flex-1 lg:flex-none px-4 py-2.5 bg-red-900/30 text-red-400 border border-red-700/50 font-semibold rounded-lg hover:bg-red-900/50 hover:border-red-600 transition flex items-center justify-center gap-2"
                     >
-                      Delete
+                      <FiTrash2 className="w-4 h-4" />
+                      <span className="hidden sm:inline">Delete</span>
                     </button>
                   </div>
                 </div>
@@ -308,66 +400,70 @@ export default function OrdersPage() {
       <Modal isOpen={isModalOpen} title={editingId ? 'Edit Order' : 'Create Order'} onClose={() => setIsModalOpen(false)}>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">User ID</label>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">User ID *</label>
             <input
               type="text"
               value={formData.userId}
               onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
               placeholder="Enter user ID"
               required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Order Total</label>
-            <input
-              type="number"
-              step="0.01"
-              value={String(formData.orderTotal)}
-              onChange={(e) => setFormData({ ...formData, orderTotal: Number(e.target.value) })}
-              placeholder="0.00"
-              required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
+            <label className="block text-sm font-semibold text-slate-300 mb-2">Order Total *</label>
+            <div className="relative">
+              <span className="absolute left-4 top-2.5 text-slate-400 font-semibold">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={String(formData.orderTotal)}
+                onChange={(e) => setFormData({ ...formData, orderTotal: Number(e.target.value) })}
+                placeholder="0.00"
+                required
+                className="w-full pl-7 pr-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Order Placed</label>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">Order Placed *</label>
             <input
               type="datetime-local"
               value={formData.orderPlaced}
               onChange={(e) => setFormData({ ...formData, orderPlaced: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              required
+              className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
 
-          <div className="flex items-center gap-3 bg-slate-50 p-4 rounded-lg">
+          <div className="flex items-center gap-3 bg-slate-700/30 border border-slate-600 p-4 rounded-lg">
             <input
               id="paid"
               type="checkbox"
               checked={formData.orderPaid}
               onChange={(e) => setFormData({ ...formData, orderPaid: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              className="w-5 h-5 rounded accent-blue-500 cursor-pointer"
             />
-            <label htmlFor="paid" className="text-sm font-medium text-slate-700 cursor-pointer">
+            <label htmlFor="paid" className="text-sm font-semibold text-slate-300 cursor-pointer flex-1">
               Mark as paid
             </label>
           </div>
 
-          <div className="flex gap-3 justify-end pt-4 border-t border-slate-200">
+          <div className="flex gap-3 justify-end pt-4 border-t border-slate-700">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-6 py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition"
+              className="px-6 py-2.5 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-700/50 hover:border-slate-500 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-             
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:shadow-lg transition disabled:opacity-50"
+              className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 transform hover:scale-105 active:scale-95"
             >
               {editingId ? 'Update Order' : 'Create Order'}
             </button>

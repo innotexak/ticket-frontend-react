@@ -3,7 +3,19 @@
 import { useTheme } from '@/contexts/ThemeContext';
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme, toggleTheme } = useTheme();
+  const { theme, resolvedTheme, toggleTheme, isLoaded } = useTheme();
+
+  // Don't render until theme is loaded to prevent hydration mismatch
+  if (!isLoaded) {
+    return (
+      <button
+        disabled
+        className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 opacity-50"
+      >
+        <span className="text-xl">⚙️</span>
+      </button>
+    );
+  }
 
   const getIcon = () => {
     if (theme === 'system') {
@@ -25,10 +37,11 @@ export function ThemeToggle() {
         onClick={toggleTheme}
         className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         title={`Current theme: ${getLabel()}. Click to cycle through themes.`}
+        aria-label="Toggle theme"
       >
         <span className="text-xl">{getIcon()}</span>
       </button>
-      
+
       {/* Tooltip */}
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
         {getLabel()} - Click to change

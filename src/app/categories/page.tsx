@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
-import { Button } from '@/components/Button';
-import { Card, CardBody, CardFooter, CardHeader } from '@/components/Card';
-import { Input } from '@/components/Form';
 import { Modal } from '@/components/Modal';
 import { Alert } from '@/components/Alert';
 import { Category, categoryApi } from '@/lib/services';
+import { 
+  FiPlus, 
+  FiEdit2, 
+  FiTrash2, 
+  FiSearch, 
+  FiTag
+} from 'react-icons/fi';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -18,7 +22,6 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ name: '', categoryId: '' });
-
 
   const fetchCategories = async () => {
     try {
@@ -84,7 +87,6 @@ export default function CategoriesPage() {
 
   const handleEdit = (category: Category) => {
     setEditingId(category.categoryId);
-
     setFormData({ name: category.name, categoryId: category.categoryId });
     setIsModalOpen(true);
   };
@@ -92,7 +94,7 @@ export default function CategoriesPage() {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditingId(null);
-    setFormData({ name: '' , categoryId: '' });
+    setFormData({ name: '', categoryId: '' });
   };
 
   const filteredCategories = categories.filter((cat) =>
@@ -100,36 +102,36 @@ export default function CategoriesPage() {
   );
 
   const categoryColors = [
-    'from-blue-500 to-cyan-500',
-    'from-purple-500 to-pink-500',
-    'from-green-500 to-emerald-500',
-    'from-orange-500 to-red-500',
-    'from-indigo-500 to-blue-500',
-    'from-rose-500 to-pink-500',
+    { bg: 'bg-blue-600', icon: 'bg-blue-600', light: 'bg-blue-900/20 border-blue-700 text-blue-400' },
+    { bg: 'bg-purple-600', icon: 'bg-purple-600', light: 'bg-purple-900/20 border-purple-700 text-purple-400' },
+    { bg: 'bg-green-600', icon: 'bg-green-600', light: 'bg-green-900/20 border-green-700 text-green-400' },
+    { bg: 'bg-orange-600', icon: 'bg-orange-600', light: 'bg-orange-900/20 border-orange-700 text-orange-400' },
+    { bg: 'bg-indigo-600', icon: 'bg-indigo-600', light: 'bg-indigo-900/20 border-indigo-700 text-indigo-400' },
+    { bg: 'bg-pink-600', icon: 'bg-pink-600', light: 'bg-pink-900/20 border-pink-700 text-pink-400' },
   ];
 
   const getColorClass = (index: number) => categoryColors[index % categoryColors.length];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-slate-900">
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
         <div className="mb-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">Event Categories</h1>
-              <p className="text-lg text-slate-600">Organize and manage your event categories</p>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            <div className="space-y-2">
+              <h1 className="text-5xl font-bold text-white">
+                Event Categories
+              </h1>
+              <p className="text-lg text-slate-400">Organize and manage your event categories effortlessly</p>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300 transform hover:scale-105"
+              className="flex items-center justify-center gap-2 px-6 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 self-start lg:self-auto"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Category
+              <FiPlus className="w-5 h-5" />
+              <span>Add Category</span>
             </button>
           </div>
         </div>
@@ -142,15 +144,13 @@ export default function CategoriesPage() {
         {categories.length > 0 && (
           <div className="mb-8">
             <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search categories..."
+                placeholder="Search categories by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition placeholder-slate-400"
+                className="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
           </div>
@@ -160,15 +160,15 @@ export default function CategoriesPage() {
         {isLoading && !categories.length ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
-              <div className="w-12 h-12 rounded-full border-4 border-slate-300 border-t-purple-600 animate-spin mx-auto mb-4"></div>
-              <p className="text-slate-600 font-medium">Loading categories...</p>
+              <div className="w-12 h-12 rounded-full border-4 border-slate-700 border-t-blue-500 animate-spin mx-auto mb-4"></div>
+              <p className="text-slate-400 font-medium">Loading categories...</p>
             </div>
           </div>
         ) : filteredCategories.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
-            <div className="text-5xl mb-4">🏷️</div>
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">No categories found</h3>
-            <p className="text-slate-600 mb-6">
+          <div className="bg-slate-800 rounded-xl border border-slate-700 p-12 text-center">
+            <div className="text-6xl mb-4">🏷️</div>
+            <h3 className="text-2xl font-bold text-white mb-2">No categories found</h3>
+            <p className="text-slate-400 mb-8 text-lg">
               {categories.length === 0
                 ? 'Get started by creating your first category.'
                 : 'Try adjusting your search.'}
@@ -176,70 +176,83 @@ export default function CategoriesPage() {
             {categories.length === 0 && (
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition transform hover:scale-105"
               >
+                <FiPlus className="w-5 h-5" />
                 Create First Category
               </button>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {filteredCategories.map((category, index) => (
-              <div
-                key={category.categoryId}
-                className="group relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300"
-              >
-                {/* Gradient Background */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredCategories.map((category, index) => {
+              const colors = getColorClass(index);
+              return (
                 <div
-                  className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-br ${getColorClass(
-                    index
-                  )} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-full -mr-20 -mt-20`}
-                ></div>
+                  key={category.categoryId}
+                  className="group relative overflow-hidden rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  style={{
+                    animation: `slideUp 0.4s ease-out ${index * 50}ms backwards`,
+                  }}
+                >
+                  <style>{`
+                    @keyframes slideUp {
+                      from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                      }
+                      to {
+                        opacity: 1;
+                        transform: translateY(0);
+                      }
+                    }
+                  `}</style>
 
-                {/* Icon Background */}
-                <div className="relative p-8">
-                  <div
-                    className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getColorClass(
-                      index
-                    )} flex items-center justify-center text-2xl font-bold text-white mb-4`}
-                  >
-                    {category.name.charAt(0)}
+                  {/* Content */}
+                  <div className="relative p-6">
+                    {/* Icon */}
+                    <div className={`w-14 h-14 rounded-lg ${colors.bg} flex items-center justify-center mb-5 transform group-hover:scale-110 transition-transform duration-300`}>
+                      <FiTag className="w-7 h-7 text-white" />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors duration-300 line-clamp-2">
+                      {category.name}
+                    </h3>
+
+                    {/* Badge */}
+                    <div className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold mb-6 ${colors.light} border`}>
+                      Category
+                    </div>
+
+                    {/* Divider */}
+                    <div className="w-full h-px bg-slate-700 mb-6"></div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 ${colors.light} border rounded-lg text-sm font-semibold hover:opacity-80 transition-all duration-200 transform hover:scale-105 active:scale-95`}
+                      >
+                        <FiEdit2 className="w-4 h-4" />
+                        <span className="hidden sm:inline">Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(category.categoryId)}
+                        disabled={isLoading}
+                        className="flex-1 px-3 py-2.5 bg-red-900/20 border border-red-700 text-red-400 rounded-lg text-sm font-semibold hover:bg-red-900/40 hover:border-red-600 transition-all duration-200 disabled:opacity-50 transform hover:scale-105 active:scale-95"
+                      >
+                        <FiTrash2 className="w-4 h-4 mx-auto sm:hidden" />
+                        <span className="hidden sm:inline">Delete</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-slate-900 transition">
-                    {category.name}
-                  </h3>
-
-                  {/* <p className="text-sm text-slate-600 mb-6">
-                    Created on{' '}
-                    <span className="font-medium text-slate-900">
-                      {new Date(category?.createdDate).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </span>
-                  </p> */}
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 pt-6 border-t border-slate-100">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="flex-1 px-4 py-2 bg-purple-50 text-purple-600 font-semibold rounded-lg hover:bg-purple-100 transition-colors duration-200"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.categoryId)}
-                      disabled={isLoading}
-                      className="flex-1 px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors duration-200 disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {/* Top Accent Line */}
+                  <div className={`absolute top-0 left-0 right-0 h-1 ${colors.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
@@ -247,40 +260,43 @@ export default function CategoriesPage() {
       {/* Modal */}
       <Modal
         isOpen={isModalOpen}
-        title={editingId ? 'Edit Category' : 'Create Category'}
+        title={editingId ? 'Edit Category' : 'Create New Category'}
         onClose={handleModalClose}
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Category Name</label>
+            <label className="block text-sm font-semibold text-slate-300 mb-3">Category Name *</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter category name"
+              placeholder="e.g., Music, Sports, Arts..."
               required
-              className="w-full text-black px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
+            <p className="text-xs text-slate-400 mt-2">Choose a clear, descriptive name for your category</p>
           </div>
 
-          <p className="text-sm text-slate-600">
-            Give your category a descriptive name to help organize your events effectively.
-          </p>
+          <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-4">
+            <p className="text-sm text-slate-300">
+              <span className="font-semibold text-blue-400">💡 Tip:</span> Use specific category names to help organize your events better. For example: "Live Music", "Comedy Shows", "Sports Events".
+            </p>
+          </div>
 
-          <div className="flex gap-3 justify-end pt-4 border-t border-slate-200">
+          <div className="flex gap-3 justify-end pt-4 border-t border-slate-700">
             <button
               type="button"
               onClick={handleModalClose}
-              className="px-6 py-2 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition"
+              className="px-6 py-2.5 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-700 hover:border-slate-500 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:shadow-lg transition disabled:opacity-50"
+              className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 transform hover:scale-105 active:scale-95"
             >
-              {editingId ? 'Update' : 'Create'}
+              {editingId ? 'Update Category' : 'Create Category'}
             </button>
           </div>
         </form>
