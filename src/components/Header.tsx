@@ -45,17 +45,23 @@ export function Header() {
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
+    <header 
+      className="border-b border-gray-200 dark:border-white/10 sticky top-0 z-40 shadow-sm"
+      style={{ 
+        backgroundColor: 'var(--background)',
+        color: 'var(--foreground)'
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div className="flex items-center gap-4 sm:gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="font-bold text-lg text-gray-900 dark:text-white hidden sm:inline">
-                TicketHub
+              <span className="font-bold text-lg  hidden sm:inline">
+                Ticket
               </span>
             </Link>
 
@@ -81,47 +87,68 @@ export function Header() {
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
 
-            {/* Desktop User Menu */}
-            <div className="hidden sm:block relative">
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="w-10 h-10 bg-blue-600 dark:bg-blue-700 rounded-full flex items-center justify-center cursor-pointer hover:shadow-md dark:hover:shadow-blue-500/20 transition-shadow text-white"
-                title={`${user?.firstName} ${user?.lastName}`}
-              >
-                <FiUser className="w-5 h-5" />
-              </button>
-
-              {/* User Dropdown */}
-              {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {user?.firstName} {user?.lastName}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {user?.email}
-                    </p>
-                  </div>
-
-                  <Link
-                    href="/profile"
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <FiUser className="w-4 h-4" />
-                    View Profile
-                  </Link>
-
+            {/* Show User Menu if logged in, otherwise show Login/Signup buttons */}
+            {user ? (
+              <>
+                {/* Desktop User Menu */}
+                <div className="hidden sm:block relative">
                   <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-gray-200 dark:border-gray-600"
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="w-10 h-10  rounded-full flex items-center justify-center cursor-pointer hover:shadow-md dark:hover:shadow-blue-500/20 transition-shadow text-gray-600 dark:text-white"
+                    title={`${user?.firstName} ${user?.lastName}`}
                   >
-                    <FiLogOut className="w-4 h-4" />
-                    Logout
+                    <FiUser className="w-5 h-5" />
                   </button>
+
+                  {/* User Dropdown */}
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                      <div className="px-4 py-3 border-b border-gray-200 dark:border-white/10">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {user?.firstName} {user?.lastName}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <FiUser className="w-4 h-4" />
+                        View Profile
+                      </Link>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-gray-200 dark:border-white/10"
+                      >
+                        <FiLogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            ) : (
+              <>
+                {/* Login and Signup buttons for unauthenticated users */}
+                <Link
+                  href="/auth/login"
+                  className="hidden sm:inline-block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="hidden sm:inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -140,43 +167,65 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden border-t border-gray-200 dark:border-gray-700 py-4 space-y-2">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
+          <nav className="lg:hidden border-t border-gray-200 dark:border-white/10 py-4 space-y-2">
+            {user ? (
+              <>
+                {navLinks.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                        isActive(link.href)
+                          ? 'text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/20'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-slate-800'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {link.label}
+                    </Link>
+                  );
+                })}
+
+                <div className="border-t border-gray-200 dark:border-white/10 pt-4 mt-4">
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FiUser className="w-4 h-4" />
+                    Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium rounded-lg"
+                  >
+                    <FiLogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                    isActive(link.href)
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-900/20'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
+                  href="/auth/login"
+                  className="flex items-center gap-3 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Icon className="w-4 h-4" />
-                  {link.label}
+                  <FiUser className="w-4 h-4" />
+                  Login
                 </Link>
-              );
-            })}
-
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-              <Link
-                href="/profile"
-                className="flex items-center gap-3 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FiUser className="w-4 h-4" />
-                Profile
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium rounded-lg"
-              >
-                <FiLogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </div>
+                <Link
+                  href="/auth/signup"
+                  className="flex items-center gap-3 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg transition-colors font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </nav>
         )}
       </div>

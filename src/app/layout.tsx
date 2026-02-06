@@ -31,7 +31,6 @@ export default function RootLayout({
         <meta name="description" content="A modern ticketing platform designed for seamless event management, category organization, and order tracking." />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
           <AuthProvider>

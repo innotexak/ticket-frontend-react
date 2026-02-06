@@ -10,12 +10,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-  primary: 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/50 text-white dark:from-blue-600 dark:to-cyan-600 dark:hover:shadow-blue-500/50',
-  secondary: 'bg-secondary border border-border-default dark:border-white/10 hover:bg-hover dark:hover:bg-gray-700/50 text-primary dark:text-white',
-  danger: 'bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700',
-  success: 'bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700',
-  outline: 'border border-border-default dark:border-white/10 bg-primary hover:bg-hover dark:hover:bg-gray-700/50 text-primary dark:text-white',
-  ghost: 'hover:bg-hover dark:hover:bg-gray-700/50 text-primary dark:text-white',
+  primary: 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/50 text-white transition-all duration-300 transform hover:scale-105 active:scale-95',
+  secondary: 'bg-secondary border border-border-default hover:bg-hover text-primary dark:text-white transition-all duration-300',
+  danger: 'bg-red-600 hover:bg-red-700 text-white transition-all duration-300 transform hover:scale-105 active:scale-95',
+  success: 'bg-green-600 hover:bg-green-700 text-white transition-all duration-300 transform hover:scale-105 active:scale-95',
+  outline: 'border border-border-default bg-primary hover:bg-hover text-primary dark:text-white transition-all duration-300',
+  ghost: 'hover:bg-hover text-primary dark:text-white transition-all duration-300',
 };
 
 const sizeClasses = {
@@ -38,7 +38,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95',
+        'inline-flex items-center justify-center font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed',
         variantClasses[variant],
         sizeClasses[size],
         className

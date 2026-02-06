@@ -8,32 +8,23 @@ import type {
   LoginCommand, 
   RegisterUserCommand, 
   UpdateAccountCommand,
-  UserProfile 
+  UserProfile, 
+  ChangePasswordCommand,
+  ForgotPasswordCommand,
+  ResetPasswordCommand
 } from '@/types/auth';
+import { AuthAction } from './types';
 
 // Initial state
 const initialState: AuthState = {
   user: null,
-  token: null,
+  accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
   isLoading: true,
   error: null,
 };
 
-// Action types
-type AuthAction =
-  | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: { user: UserProfile; token: string; refreshToken: string } }
-  | { type: 'LOGIN_FAILURE'; payload: string }
-  | { type: 'LOGOUT' }
-  | { type: 'REGISTER_START' }
-  | { type: 'REGISTER_SUCCESS' }
-  | { type: 'REGISTER_FAILURE'; payload: string }
-  | { type: 'REFRESH_TOKEN_SUCCESS'; payload: { token: string; refreshToken: string } }
-  | { type: 'UPDATE_PROFILE_SUCCESS'; payload: UserProfile }
-  | { type: 'CLEAR_ERROR' }
-  | { type: 'SET_LOADING'; payload: boolean };
 
 // Reducer
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -46,7 +37,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: action.payload.user,
-        token: action.payload.token,
+        accessToken: action.payload.  accessToken ,
         refreshToken: action.payload.refreshToken,
         isAuthenticated: true,
         isLoading: false,
@@ -58,7 +49,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: null,
-        token: null,
+        accessToken: null,
         refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
@@ -69,7 +60,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: null,
-        token: null,
+        accessToken: null,
         refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
@@ -82,7 +73,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case 'REFRESH_TOKEN_SUCCESS':
       return {
         ...state,
-        token: action.payload.token,
+        accessToken: action.payload.accessToken,
         refreshToken: action.payload.refreshToken,
       };
     
@@ -91,7 +82,27 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         ...state,
         user: action.payload,
       };
-    
+    case "CHANGE_PASSWORD_SUCCESS":
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+      };
+
+    case 'FORGOT_PASSWORD_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+      };
+      
+      case 'RESET_PASSWORD_SUCCESS':
+        return {
+          ...state,
+          isLoading: false,
+          error: null,
+        };
+
     case 'CLEAR_ERROR':
       return { ...state, error: null };
     
@@ -123,7 +134,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const user = JSON.parse(userStr);
             dispatch({
               type: 'LOGIN_SUCCESS',
-              payload: { user, token, refreshToken }
+              payload: { user, accessToken:token, refreshToken }
             });
           } catch (error) {
             console.error('Failed to parse user data:', error);
@@ -143,14 +154,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (credentials: LoginCommand) => {
     try {
       dispatch({ type: 'LOGIN_START' });
-      const response = await authApi.login(credentials);
-      
+      const responseRaw = await authApi.login(credentials);
+      const response = responseRaw.data;
       if (!response) {
         throw new Error('Login response is empty');
       }
 
       const user: UserProfile = {
-        userId: response.userId,
         email: response.email,
         firstName: response.firstName,
         lastName: response.lastName,
@@ -159,14 +169,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Store in localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem('token', response.token);
+        localStorage.setItem('token', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
         localStorage.setItem('user', JSON.stringify(user));
       }
 
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: { user, token: response.token, refreshToken: response.refreshToken }
+        payload: { user, accessToken: response.accessToken, refreshToken: response.refreshToken }
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
@@ -207,7 +217,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     try {
       const response = await authApi.refreshToken({
-        token: state.token || '',
+        accessToken: state.accessToken || '',
         refreshToken: state.refreshToken,
       });
 
@@ -216,13 +226,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       if (typeof window !== 'undefined') {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('refreshToken', response.refreshToken);
+        localStorage.setItem('token', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
       }
 
       dispatch({
         type: 'REFRESH_TOKEN_SUCCESS',
-        payload: { token: response.token, refreshToken: response.refreshToken }
+        payload: { accessToken: response.data.accessToken, refreshToken: response.data.refreshToken }
       });
     } catch (error) {
       console.error('Token refresh failed:', error);
@@ -259,6 +269,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+// change password function
+const changePassword = async (data: ChangePasswordCommand) => {
+  try {
+    const response = await authApi.changePassword(data);
+    if (response && response.success) {
+      dispatch({ type: 'CHANGE_PASSWORD_SUCCESS' });
+    }
+  } catch (error) {
+    console.error('Change password failed:', error);
+    throw error;
+  }
+};
+
+// forgot password function
+const forgotPassword = async (data: ForgotPasswordCommand) => {
+  try {
+    const response = await authApi.forgotPassword(data);
+    if (response && response.success) {
+      dispatch({ type: 'FORGOT_PASSWORD_SUCCESS' });
+    }
+  } catch (error) {
+    console.error('Forgot password failed:', error);
+    throw error;
+  }
+};
+
+// reset password function
+const resetPassword = async (data: ResetPasswordCommand) => {
+  try {
+    const response = await authApi.resetPassword(data);
+    if (response && response.success) {
+      dispatch({ type: 'RESET_PASSWORD_SUCCESS' });
+    }
+  } catch (error) {
+    console.error('Reset password failed:', error);
+    throw error;
+  }
+};
+
   const value: AuthContextType = {
     ...state,
     login,
@@ -266,6 +315,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     refreshTokenFn: refreshToken,
     updateProfile,
+    changePassword,
+    forgotPassword,
+    resetPassword,
     clearError,
   };
 

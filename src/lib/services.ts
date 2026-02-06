@@ -7,7 +7,10 @@ import type {
   LoginCommandResponse,
   RegisterUserCommandResponse,
   UserProfile,
-  BaseResponse
+  BaseResponse,
+  ChangePasswordCommand,
+  ForgotPasswordCommand,
+  ResetPasswordCommand
 } from '@/types/auth';
 
 export interface PaginatedResponse<T> {
@@ -163,4 +166,13 @@ export const authApi = {
 
   updateProfile: (data: UpdateAccountCommand) =>
     apiClient.put<BaseResponse>('/auth/profile', data),
+  
+   changePassword: (data: ChangePasswordCommand) =>
+    apiClient.put<BaseResponse>('/auth/change/password', data),
+   
+   forgotPassword: (data: ForgotPasswordCommand) =>
+    apiClient.post<BaseResponse>('/auth/forgot/password', data),
+
+   resetPassword: (data: ResetPasswordCommand) =>
+    apiClient.post<BaseResponse>('/auth/reset/password', data),
 };

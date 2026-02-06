@@ -1,6 +1,7 @@
 'use client';
 
 import { useTheme } from '@/contexts/ThemeContext';
+import { FiSun, FiMoon, FiMonitor } from 'react-icons/fi';
 
 export function ThemeToggle() {
   const { theme, resolvedTheme, toggleTheme, isLoaded } = useTheme();
@@ -11,17 +12,26 @@ export function ThemeToggle() {
       <button
         disabled
         className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 opacity-50"
+        aria-label="Loading theme"
       >
-        <span className="text-xl">⚙️</span>
+        <FiMonitor className="w-5 h-5" />
       </button>
     );
   }
 
   const getIcon = () => {
     if (theme === 'system') {
-      return resolvedTheme === 'dark' ? '🌙' : '☀️';
+      return resolvedTheme === 'dark' ? (
+        <FiMoon className="w-5 h-5" />
+      ) : (
+        <FiSun className="w-5 h-5" />
+      );
     }
-    return theme === 'dark' ? '🌙' : '☀️';
+    return theme === 'dark' ? (
+      <FiMoon className="w-5 h-5" />
+    ) : (
+      <FiSun className="w-5 h-5" />
+    );
   };
 
   const getLabel = () => {
@@ -35,15 +45,15 @@ export function ThemeToggle() {
     <div className="relative group">
       <button
         onClick={toggleTheme}
-        className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-        title={`Current theme: ${getLabel()}. Click to cycle through themes.`}
+        className="p-2 rounded-lg   transition-colors text-gray-700 dark:text-gray-300"
+    
         aria-label="Toggle theme"
       >
-        <span className="text-xl">{getIcon()}</span>
+        {getIcon()}
       </button>
 
       {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs  rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
         {getLabel()} - Click to change
       </div>
     </div>

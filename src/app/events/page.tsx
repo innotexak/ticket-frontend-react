@@ -21,6 +21,7 @@ import {
   FiX,
   FiChevronDown
 } from 'react-icons/fi';
+import { Button, Input } from '@/components/ui';
 
 export default function EventsPage() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -193,7 +194,7 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -201,12 +202,10 @@ export default function EventsPage() {
         <div className="mb-12">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
             <div className="space-y-2">
-              <h1 className="text-5xl font-bold text-white">
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  Events
-                </span>
+              <h1 className="text-5xl font-bold gradient-text">
+                Events
               </h1>
-              <p className="text-lg text-slate-400">Manage and discover your upcoming events</p>
+              <p className="text-lg text-secondary">Manage and discover your upcoming events</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -238,33 +237,33 @@ export default function EventsPage() {
         {success && <Alert type="success" message={success} onClose={() => setSuccess('')} />}
 
         {/* Filters Section */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 mb-8 shadow-xl">
+        <div className="bg-primary border border-border-default dark:border-white/10 rounded-2xl backdrop-blur p-6 mb-8 shadow-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* Search */}
             <div className="relative">
-              <label className="block text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-semibold text-primary dark:text-white mb-2 flex items-center gap-2">
                 <FiSearch className="w-4 h-4" />
                 Search
               </label>
-              <input
+              <Input
                 type="text"
                 placeholder="Search by name or artist..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white placeholder-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
               />
             </div>
 
             {/* Category Filter */}
             <div className="relative">
-              <label className="block text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-semibold text-primary dark:text-white mb-2 flex items-center gap-2">
                 <FiFilter className="w-4 h-4" />
                 Category
               </label>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none cursor-pointer"
+                className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition appearance-none cursor-pointer"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -277,22 +276,22 @@ export default function EventsPage() {
 
             {/* Action Buttons */}
             <div className="flex gap-2 items-end">
-              <button
+              <Button
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('');
                 }}
-                className="flex-1 px-4 py-2.5 border border-slate-600 text-slate-300 font-medium rounded-lg hover:bg-slate-700/50 hover:border-slate-500 transition"
+                className="flex-1 px-4 py-2.5 border  font-medium rounded-lg hover:bg-hover dark:hover:bg-gray-700/50 transition"
               >
                 Clear
-              </button>
-              <div className="flex gap-1 bg-slate-700/50 border border-slate-600 rounded-lg p-1">
+              </Button>
+              <div className="flex gap-1 bg-secondary border border-border-default dark:border-white/10 rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2.5 rounded transition ${
                     viewMode === 'grid'
                       ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-tertiary hover:text-primary dark:hover:text-white'
                   }`}
                   title="Grid view"
                 >
@@ -303,7 +302,7 @@ export default function EventsPage() {
                   className={`p-2.5 rounded transition ${
                     viewMode === 'list'
                       ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-tertiary hover:text-primary dark:hover:text-white'
                   }`}
                   title="List view"
                 >
@@ -314,10 +313,10 @@ export default function EventsPage() {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center justify-between text-sm text-slate-400 pt-4 border-t border-slate-700">
+          <div className="flex items-center justify-between text-sm text-secondary pt-4 border-t border-border-default dark:border-white/10">
             <div>
-              Showing <span className="font-semibold text-slate-200">{filtered.length}</span> of{' '}
-              <span className="font-semibold text-slate-200">{events.length}</span> events
+              Showing <span className="font-semibold text-primary dark:text-white">{filtered.length}</span> of{' '}
+              <span className="font-semibold text-primary dark:text-white">{events.length}</span> events
             </div>
           </div>
         </div>
@@ -326,15 +325,15 @@ export default function EventsPage() {
         {isLoading && !events.length ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
-              <div className="w-12 h-12 rounded-full border-4 border-slate-700 border-t-blue-500 animate-spin mx-auto mb-4"></div>
-              <p className="text-slate-400">Loading events...</p>
+              <div className="w-12 h-12 rounded-full border-4 border-border-default dark:border-gray-700 border-t-blue-500 animate-spin mx-auto mb-4"></div>
+              <p className="text-secondary">Loading events...</p>
             </div>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-12 text-center shadow-xl">
+          <div className="bg-primary border border-border-default dark:border-white/10 rounded-2xl backdrop-blur p-12 text-center shadow-xl">
             <div className="text-6xl mb-4">🎭</div>
-            <h3 className="text-2xl font-bold text-white mb-2">No events found</h3>
-            <p className="text-slate-400 mb-8 text-lg">
+            <h3 className="text-2xl font-bold text-primary dark:text-white mb-2">No events found</h3>
+            <p className="text-secondary mb-8 text-lg">
               {events.length === 0
                 ? 'Get started by creating your first event.'
                 : 'Try adjusting your filters.'}
@@ -354,7 +353,7 @@ export default function EventsPage() {
             {filtered.map((ev, idx) => (
               <div
                 key={ev.eventId}
-                className="group overflow-hidden rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 border border-slate-700 hover:border-blue-500 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-1"
+                className="group overflow-hidden rounded-2xl bg-primary border border-border-default dark:border-white/10 hover:border-blue-500 dark:hover:border-blue-400 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-1"
                 style={{
                   animation: `slideIn 0.3s ease-out ${idx * 50}ms backwards`,
                 }}
@@ -393,43 +392,43 @@ export default function EventsPage() {
 
                 {/* Content */}
                 <div className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-cyan-400 group-hover:bg-clip-text transition line-clamp-2">
+                  <h3 className="text-lg font-bold text-primary dark:text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-cyan-400 group-hover:bg-clip-text transition line-clamp-2">
                     {ev.name}
                   </h3>
 
                   <div className="space-y-2.5 mb-6 text-sm">
-                    <div className="flex items-center gap-3 text-slate-300">
+                    <div className="flex items-center gap-3 text-secondary dark:text-slate-300">
                       <FiMusic className="w-4 h-4 text-blue-400 flex-shrink-0" />
                       <span className="truncate">{ev.artist}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-slate-300">
+                    <div className="flex items-center gap-3 text-secondary dark:text-slate-300">
                       <FiCalendar className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                       <span>{new Date(ev.date).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-slate-300">
+                    <div className="flex items-center gap-3 text-secondary dark:text-slate-300">
                       <FiClock className="w-4 h-4 text-purple-400 flex-shrink-0" />
                       <span>{new Date(ev.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>
 
-                  <p className="text-sm text-slate-400 mb-6 line-clamp-2 h-10">{ev.description}</p>
+                  <p className="text-sm text-tertiary mb-6 line-clamp-2 h-10">{ev.description}</p>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-6 border-t border-slate-600">
+                  <div className="flex items-center justify-between pt-6 border-t border-border-default dark:border-white/10">
                     <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                       ${ev.price.toFixed(2)}
                     </span>
                     <div className="flex gap-2">
                       <button
                         onClick={() => openEdit(ev)}
-                        className="p-2.5 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 hover:text-blue-300 transition border border-blue-500/30 hover:border-blue-500/60"
+                        className="p-2.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition border border-blue-300 dark:border-blue-700/50 hover:border-blue-400 dark:hover:border-blue-600"
                         title="Edit"
                       >
                         <FiEdit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(ev.eventId)}
-                        className="p-2.5 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 hover:text-red-300 transition border border-red-500/30 hover:border-red-500/60"
+                        className="p-2.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition border border-red-300 dark:border-red-700/50 hover:border-red-400 dark:hover:border-red-600"
                         title="Delete"
                       >
                         <FiTrash2 className="w-4 h-4" />
@@ -445,7 +444,7 @@ export default function EventsPage() {
             {filtered.map((ev, idx) => (
               <div
                 key={ev.eventId}
-                className="group bg-gradient-to-r from-slate-700/50 to-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 hover:border-blue-500 p-6 shadow-lg hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-0.5"
+                className="group bg-primary border border-border-default dark:border-white/10 hover:border-blue-500 dark:hover:border-blue-400 rounded-2xl backdrop-blur p-6 shadow-lg hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-0.5"
                 style={{
                   animation: `slideIn 0.3s ease-out ${idx * 50}ms backwards`,
                 }}
@@ -480,20 +479,20 @@ export default function EventsPage() {
                   {/* Event Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h3 className="text-xl font-bold text-white truncate">{ev.name}</h3>
-                      <span className="px-3 py-1 bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-bold rounded-full flex-shrink-0">
+                      <h3 className="text-xl font-bold text-primary dark:text-white truncate">{ev.name}</h3>
+                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700/50 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-full flex-shrink-0">
                         {getCategoryName(ev.categoryId)}
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-2 text-slate-400 text-sm mb-3">
+                    <div className="flex items-center gap-2 text-secondary dark:text-slate-400 text-sm mb-3">
                       <FiMusic className="w-4 h-4 text-blue-400" />
                       <span>{ev.artist}</span>
                     </div>
 
-                    <p className="text-sm text-slate-400 line-clamp-1 mb-3">{ev.description}</p>
+                    <p className="text-sm text-tertiary line-clamp-1 mb-3">{ev.description}</p>
 
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <div className="flex items-center gap-4 text-xs text-tertiary dark:text-slate-500">
                       <div className="flex items-center gap-2">
                         <FiCalendar className="w-4 h-4 text-cyan-400" />
                         <span>{new Date(ev.date).toLocaleDateString()}</span>
@@ -506,9 +505,9 @@ export default function EventsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-6 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-600 md:pl-6 flex-shrink-0">
+                  <div className="flex items-center gap-6 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-border-default dark:border-white/10 md:pl-6 flex-shrink-0">
                     <div className="text-right">
-                      <div className="text-xs text-slate-500 mb-1">Price</div>
+                      <div className="text-xs text-tertiary mb-1">Price</div>
                       <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                         ${ev.price.toFixed(2)}
                       </div>
@@ -516,14 +515,14 @@ export default function EventsPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => openEdit(ev)}
-                        className="p-2.5 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 hover:text-blue-300 transition border border-blue-500/30 hover:border-blue-500/60"
+                        className="p-2.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition border border-blue-300 dark:border-blue-700/50 hover:border-blue-400 dark:hover:border-blue-600"
                         title="Edit"
                       >
                         <FiEdit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(ev.eventId)}
-                        className="p-2.5 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 hover:text-red-300 transition border border-red-500/30 hover:border-red-500/60"
+                        className="p-2.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition border border-red-300 dark:border-red-700/50 hover:border-red-400 dark:hover:border-red-600"
                         title="Delete"
                       >
                         <FiTrash2 className="w-4 h-4" />
@@ -546,34 +545,34 @@ export default function EventsPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">Event Name *</label>
+              <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Event Name *</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Enter event name"
                 required
-                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white placeholder-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">Artist</label>
+              <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Artist</label>
               <input
                 type="text"
                 value={formData.artist}
                 onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
                 placeholder="Artist name"
-                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white placeholder-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">Price *</label>
+              <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Price *</label>
               <div className="relative">
-                <span className="absolute left-4 top-2.5 text-slate-400 font-medium">$</span>
+                <span className="absolute left-4 top-2.5 text-tertiary font-medium">$</span>
                 <input
                   type="number"
                   step="0.01"
@@ -581,29 +580,29 @@ export default function EventsPage() {
                   value={String(formData.price)}
                   onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                   placeholder="0.00"
-                  className="w-full pl-7 pr-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-7 pr-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white placeholder-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">Date & Time *</label>
+              <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Date & Time *</label>
               <input
                 type="datetime-local"
                 value={formData.date}
                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-2">Category *</label>
+            <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Category *</label>
             <select
               value={formData.categoryId}
               onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none cursor-pointer"
+              className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition appearance-none cursor-pointer"
               required
             >
               <option value="">Select a category</option>
@@ -616,32 +615,32 @@ export default function EventsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-2">Image URL</label>
+            <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Image URL</label>
             <input
               type="url"
               value={formData.imageUrl}
               onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
               placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white placeholder-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-2">Description</label>
+            <label className="block text-sm font-semibold text-primary dark:text-white mb-2">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe your event..."
               rows={4}
-              className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+              className="w-full px-4 py-2.5 bg-secondary border border-border-default dark:border-white/10 text-primary dark:text-white placeholder-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition resize-none"
             ></textarea>
           </div>
 
-          <div className="flex gap-3 justify-end pt-4 border-t border-slate-700">
+          <div className="flex gap-3 justify-end pt-4 border-t border-border-default dark:border-white/10">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-6 py-2.5 border border-slate-600 text-slate-300 font-medium rounded-lg hover:bg-slate-700/50 hover:border-slate-500 transition"
+              className="px-6 py-2.5 border border-border-default dark:border-white/10 text-primary dark:text-white font-medium rounded-lg hover:bg-hover dark:hover:bg-gray-700/50 transition"
             >
               Cancel
             </button>

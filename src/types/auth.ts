@@ -13,7 +13,7 @@ export interface RegisterUserCommand {
 }
 
 export interface RefreshTokenCommand {
-  token: string;
+  accessToken: string;
   refreshToken: string;
 }
 
@@ -24,12 +24,30 @@ export interface UpdateAccountCommand {
 }
 
 export interface LoginCommandResponse {
-  token: string;
+ data:{
+   accessToken: string;
   refreshToken: string;
   userId: string;
   email: string;
   firstName: string;
   lastName: string;
+ }
+
+}
+
+export interface ChangePasswordCommand {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ForgotPasswordCommand {
+  email: string;
+}
+
+export interface ResetPasswordCommand {
+  token: string;
+  newPassword: string;
 }
 
 export interface RegisterUserCommandResponse {
@@ -41,12 +59,13 @@ export interface RegisterUserCommandResponse {
 }
 
 export interface UserProfile {
-  userId: string;
   email: string;
   firstName: string;
   lastName: string;
   createdDate: string;
   lastModifiedDate?: string;
+  role?:string
+  userName?:string
 }
 
 export interface BaseResponse {
@@ -57,7 +76,7 @@ export interface BaseResponse {
 
 export interface AuthState {
   user: UserProfile | null;
-  token: string | null;
+  accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -70,5 +89,8 @@ export interface AuthContextType extends AuthState {
   logout: () => void;
   refreshTokenFn: () => Promise<void>;
   updateProfile: (data: UpdateAccountCommand) => Promise<void>;
+  changePassword: (data: ChangePasswordCommand) => Promise<void>;
+  forgotPassword: (data: ForgotPasswordCommand) => Promise<void>;
+  resetPassword: (data: ResetPasswordCommand) => Promise<void>;
   clearError: () => void;
 }
