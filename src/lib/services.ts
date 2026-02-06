@@ -1,4 +1,32 @@
 import { apiClient } from '@/lib/api';
+import type {
+  LoginCommand,
+  RegisterUserCommand,
+  RefreshTokenCommand,
+  UpdateAccountCommand,
+  LoginCommandResponse,
+  RegisterUserCommandResponse,
+  UserProfile,
+  BaseResponse,
+  ChangePasswordCommand,
+  ForgotPasswordCommand,
+  ResetPasswordCommand
+} from '@/types/auth';
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  totalCount: number;
+  limit: number;
+  offset: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface PaginationParams {
+  limit?: number;
+  offset?: number;
+  search?: string;
+}
 
 // Types
 export interface Category {
@@ -34,7 +62,17 @@ export interface Order {
 
 // Category APIs
 export const categoryApi = {
-  getAll: () => apiClient.get<Category[]>('/category/all'),
+  getAll: (params?: PaginationParams) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    if (params?.search) queryParams.append('q', params.search);
+    
+    const query = queryParams.toString();
+    const url = `/category/all${query ? `?${query}` : ''}`;
+    
+    return apiClient.get<PaginatedResponse<Category>>(url);
+  },
 
   getWithEvents: (includeHistory: boolean = false) =>
     apiClient.get<any[]>(`/category?includeHistory=${includeHistory}`),
@@ -50,7 +88,17 @@ export const categoryApi = {
 
 // Event APIs
 export const eventApi = {
-  getAll: () => apiClient.get<Event[]>('/event/all'),
+  getAll: (params?: PaginationParams) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    
+    const query = queryParams.toString();
+    const url = `/event/all${query ? `?${query}` : ''}`;
+    
+    return apiClient.get<PaginatedResponse<Event> | Event[]>(url);
+  },
 
   getById: (id: string) =>
     apiClient.get<Event>(`/event/${id}`),
@@ -63,11 +111,24 @@ export const eventApi = {
 
   delete: (id: string) =>
     apiClient.delete(`/event/${id}`),
+
+  export: () =>
+    apiClient.get(`/event/export`),
 };
 
 // Order APIs
 export const orderApi = {
-  getAll: () => apiClient.get<Order[]>('/order/all'),
+  getAll: (params?: PaginationParams) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    if (params?.search) queryParams.append('q', params.search);
+    
+    const query = queryParams.toString();
+    const url = `/order/all${query ? `?${query}` : ''}`;
+    
+    return apiClient.get<PaginatedResponse<Order>>(url);
+  },
 
   getById: (id: string) =>
     apiClient.get<Order>(`/order/${id}`),
@@ -84,4 +145,34 @@ export const orderApi = {
 
   delete: (id: string) =>
     apiClient.delete(`/order/${id}`),
+};
+
+// Authentication APIs
+export const authApi = {
+  login: (credentials: LoginCommand) =>
+    apiClient.post<LoginCommandResponse>('/auth/login', credentials),
+
+  register: (userData: RegisterUserCommand) =>
+    apiClient.post<RegisterUserCommandResponse>('/auth/register', userData),
+
+  refreshToken: (tokenData: RefreshTokenCommand) =>
+    apiClient.post<LoginCommandResponse>('/auth/refresh', tokenData),
+
+  activateAccount: (userId: string) =>
+    apiClient.get(`/auth/activate/${userId}`),
+
+  getProfile: () =>
+    apiClient.get<UserProfile>('/auth/profile'),
+
+  updateProfile: (data: UpdateAccountCommand) =>
+    apiClient.put<BaseResponse>('/auth/profile', data),
+  
+   changePassword: (data: ChangePasswordCommand) =>
+    apiClient.put<BaseResponse>('/auth/change/password', data),
+   
+   forgotPassword: (data: ForgotPasswordCommand) =>
+    apiClient.post<BaseResponse>('/auth/forgot/password', data),
+
+   resetPassword: (data: ResetPasswordCommand) =>
+    apiClient.post<BaseResponse>('/auth/reset/password', data),
 };
