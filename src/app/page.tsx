@@ -143,9 +143,9 @@ export default function HomePage() {
             {events.slice(0, 3).map((event) => (
               <div
                 key={event.eventId}
-                className="group relative overflow-hidden rounded-2xl border border-border-default dark:border-white/10 hover:border-border-light dark:hover:border-white/30 bg-primary dark:bg-slate-800/50 backdrop-blur transition"
+                className="group relative  overflow-hidden rounded-2xl border dark:border-white/10 hover:border-border-light dark:hover:border-white/30 bg-primary dark:bg-slate-800/50 backdrop-blur transition"
               >
-                <div className="absolute inset-0 dark:bg-gradient-to-b dark:from-transparent dark:to-slate-900/80"></div>
+                <div className="absolute inset-0 bg-white bg-primary hover:border-border-light dark:hover:border-white/30"></div>
                 <div className="relative p-6 flex flex-col h-full justify-between">
                   <div>
                     <h3 className="text-xl font-semibold mb-2 group-hover:text-cyan-500 transition">

@@ -290,18 +290,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Footer Note */}
-        <div className="mt-12 pt-8 border-t border-border-default dark:border-gray-700">
-          <p className="text-center text-sm text-tertiary dark:text-gray-400">
-            Last updated: {new Date().toLocaleTimeString()} • 
-            <button 
-              onClick={fetchAll}
-              className="ml-2 text-blue-600 dark:text-blue-400 hover:underline font-medium"
-            >
-              Refresh now
-            </button>
-          </p>
-        </div>
+
       </main>
     </div>
   );
