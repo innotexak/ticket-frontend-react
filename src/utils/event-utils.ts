@@ -51,8 +51,8 @@ export const filterEvents = <T extends { name: string; artist: string; categoryI
   return events.filter((event) => {
     const matchesCategory = !selectedCategory || event.categoryId === selectedCategory;
     const matchesSearch =
-      event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.artist.toLowerCase().includes(searchQuery.toLowerCase());
+      event?.name?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+      event?.artist?.toLowerCase()?.includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 };

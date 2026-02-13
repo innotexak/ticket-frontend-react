@@ -308,12 +308,7 @@ export default function CategoriesPage() {
               {totalCount}
             </span>{' '}
             categories
-            {inputValue && (
-              <span className="ml-2">
-                · URL: /categories?q={inputValue}
-                {currentPage > 0 ? `&page=${currentPage + 1}` : ''}
-              </span>
-            )}
+          
           </div>
         )}
 
